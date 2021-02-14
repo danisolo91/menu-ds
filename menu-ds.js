@@ -11,9 +11,13 @@ const MenuDS = (() => {
             const verticalUl = horizontalLi.getElementsByTagName('ul');
 
             if(verticalUl.length > 0) {
+                verticalUl[0].classList.add('absolute');
+
                 horizontalLi.addEventListener('mouseenter', e => {
                     e.preventDefault();
-                    verticalUl[0].classList.add('visible');
+                    Array.from(verticalUl[0].children).forEach(li => {
+                        li.classList.add('visible');
+                    });
                 });
 
                 /* 
@@ -27,7 +31,9 @@ const MenuDS = (() => {
                         const aElement = verticalLi.getElementsByTagName('a')[0];
                         aElement.addEventListener('click', e => {
                             e.preventDefault();
-                            verticalUlDropdown[0].classList.toggle('visible');
+                            Array.from(verticalUlDropdown[0].children).forEach(li => {
+                                li.classList.toggle('visible');
+                            });
                         });
                     }
                 });
@@ -38,14 +44,18 @@ const MenuDS = (() => {
                 */
                 horizontalLi.addEventListener('mouseleave', e => {
                     e.preventDefault();
-                    verticalUl[0].classList.remove('visible');
+                    Array.from(verticalUl[0].children).forEach(li => {
+                        li.classList.remove('visible');
+                    });
 
                     // Also remove 'visible' from the verticalUlDropdown
                     Array.from(verticalUl[0].getElementsByTagName('li')).forEach(verticalLi => {
                         const verticalUlDropdown = verticalLi.getElementsByTagName('ul');
     
                         if(verticalUlDropdown.length > 0) {
-                            verticalUlDropdown[0].classList.remove('visible');
+                            Array.from(verticalUlDropdown[0].children).forEach(li => {
+                                li.classList.remove('visible');
+                            });
                         }
                     });
                 });
