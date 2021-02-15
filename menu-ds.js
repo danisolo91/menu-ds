@@ -2,7 +2,7 @@ const MenuDS = (() => {
     const menuNav = document.getElementById('menu-ds');
     const horizontalUl = menuNav.lastElementChild;
 
-    const init = () => {
+    const addEvents = () => {
         /* 
         ** Add 'mouseenter' events to the horizontal 'li' elements 
         ** that have a dropdown menu inside
@@ -51,7 +51,7 @@ const MenuDS = (() => {
                     // Also remove 'visible' from the verticalUlDropdown
                     Array.from(verticalUl[0].getElementsByTagName('li')).forEach(verticalLi => {
                         const verticalUlDropdown = verticalLi.getElementsByTagName('ul');
-    
+
                         if(verticalUlDropdown.length > 0) {
                             Array.from(verticalUlDropdown[0].children).forEach(li => {
                                 li.classList.remove('visible');
@@ -61,9 +61,67 @@ const MenuDS = (() => {
                 });
             }
         });
+
+        /*
+        ** Check with 'resize' event if there is enough space
+        ** to show horizontal LI elements.
+        */
+       window.addEventListener('resize', e => {
+
+       });
     };
 
-    return {init}
+    const applyResponsive = () => {
+        /*
+        ** If there is not enough space to show the horizontal
+        ** elements, append the last LI element to the 'more' 
+        ** dropdown.
+        */ 
+        const moreButton = createMoreButton();
+        const moreBtnUl = moreButton.getElementsByTagName('ul')[0];
+
+        let ulWidth = horizontalUl.offsetWidth;
+        let totalLiWidth = 0;
+        let showMoreBtn = false;
+
+        Array.from(horizontalUl.children).forEach(li => {
+            totalLiWidth += li.offsetWidth;
+
+            if(totalLiWidth > ulWidth) {
+                moreBtnUl.append(li);
+                if(showMoreBtn === false) showMoreBtn = true;
+            }
+        });
+
+        if(showMoreBtn === true) {
+            /*
+            ** Also insert the last horizontal LI as firstChild into
+            ** the 'more' dropdown to make space to show the button.
+            */
+            moreBtnUl.insertBefore(
+                horizontalUl.lastElementChild, 
+                moreBtnUl.firstChild
+            );
+            horizontalUl.append(moreButton);
+        }
+
+        // DOTO: refreshEvents() instead and include there 
+        // window.resize with a call to refreshResponsive()
+        addEvents(); 
+    };
+
+    const createMoreButton = () => {
+        const moreBtn = document.createElement('li');
+        moreBtn.innerHTML = `<a href="#">More</a><ul class="dropdown"></ul>`;
+
+        return moreBtn;
+    };
+
+    const init = () => {
+        applyResponsive();
+    };
+
+    return { init }
 })();
 
 MenuDS.init();
