@@ -56,8 +56,3 @@ body {
     display: block;
     float: initial;
 }
-
-#menu-ds .visible-hidden {
-    position: absolute;
-    top: -1000
-}

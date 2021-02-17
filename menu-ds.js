@@ -79,7 +79,7 @@ const MenuDS = (() => {
 
         let navWidth = menuNav.offsetWidth;
         let totalLiWidth = 0;
-        let lastElementWidth = 0;
+        let lastHorizontalElementWidth = 0;
 
         Array.from(horizontalUl.children).forEach(li => {
             totalLiWidth += li.offsetWidth;
@@ -88,23 +88,19 @@ const MenuDS = (() => {
             ** If there is not enough space to show the last horizontal
             ** element, append it to the 'more' dropdown.
             */ 
-            if(totalLiWidth > navWidth) {
-                if(horizontalUl.lastElementChild.id === moreButton.id) {
-                    const previousElementSibling = horizontalUl.lastElementChild.previousElementSibling;
+            if(totalLiWidth >= navWidth) {
+                if(li.id === moreButton.id) {
+                    const previousElementSibling = li.previousElementSibling;
                     if(previousElementSibling != null)
                     {
                         moreBtnUl.insertBefore(
-                            previousElementSibling, 
+                            previousElementSibling,
                             moreBtnUl.firstChild
                         );
                     }
                 } else {
-                    // save the width of the last element know if the moreButton fits in
-                    lastElementWidth = horizontalUl.lastElementChild.offsetWidth;
-                    moreBtnUl.insertBefore(
-                        horizontalUl.lastElementChild, 
-                        moreBtnUl.firstChild
-                    );
+                    lastHorizontalElementWidth = li.offsetWidth;
+                    moreBtnUl.appendChild(li);
                 }
                 eventsRefresh = true;
                 if(buttonNotAppended === true) appendButton = true;
@@ -115,27 +111,26 @@ const MenuDS = (() => {
         ** Pull out the last element from the 'more' dropdown if there 
         ** is enough space in the horizontal menu.
         */
-        if(totalLiWidth <= navWidth) {
+        if(totalLiWidth < navWidth) {
             if(buttonNotAppended === false) {
                 let pullOut = false;
                 const btnFirstElement = moreBtnUl.firstElementChild;
                 
                 // temporarily clone to get the offsetWidth of display:none element
                 const clone = btnFirstElement.cloneNode( true );
-                clone.classList.add('visible-hidden');
                 horizontalUl.appendChild(clone);
+                let btnFirstElementWidth = clone.offsetWidth;
+                horizontalUl.removeChild(clone);
 
                 if(moreBtnUl.children.length > 1) {
-                    if(clone.offsetWidth + totalLiWidth < navWidth) {
+                    if(btnFirstElementWidth+ totalLiWidth < navWidth) {
                         pullOut = true;
                     }
                 } else if(moreBtnUl.children.length === 1) {
-                    if(clone.offsetWidth + totalLiWidth - moreButton.offsetWidth < navWidth) {
+                    if(btnFirstElementWidth + totalLiWidth - moreButton.offsetWidth < navWidth) {
                         pullOut = true;
                     }
                 }
-
-                horizontalUl.removeChild(clone);
 
                 if(pullOut === true) {
                     horizontalUl.insertBefore(
@@ -158,12 +153,11 @@ const MenuDS = (() => {
         */
         if(buttonNotAppended === true && appendButton === true) {
             const clone = moreButton.cloneNode( true );
-            clone.classList.add('visible-hidden');
             horizontalUl.appendChild(clone);
             moreButtonWidth = clone.offsetWidth;
             horizontalUl.removeChild(clone);
 
-            if(lastElementWidth <= moreButtonWidth) {
+            if(totalLiWidth - lastHorizontalElementWidth + moreButtonWidth > navWidth) {
                 moreBtnUl.insertBefore(
                     horizontalUl.lastElementChild, 
                     moreBtnUl.firstChild
