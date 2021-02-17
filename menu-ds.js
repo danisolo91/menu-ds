@@ -79,34 +79,50 @@ const MenuDS = (() => {
 
         let navWidth = menuNav.offsetWidth;
         let totalLiWidth = 0;
+        let lastElementWidth = 0;
 
         Array.from(horizontalUl.children).forEach(li => {
             totalLiWidth += li.offsetWidth;
+
+            /*
+            ** If there is not enough space to show the last horizontal
+            ** element, append it to the 'more' dropdown.
+            */ 
+            if(totalLiWidth > navWidth) {
+                if(horizontalUl.lastElementChild.id === moreButton.id) {
+                    const previousElementSibling = horizontalUl.lastElementChild.previousElementSibling;
+                    if(previousElementSibling != null)
+                    {
+                        moreBtnUl.insertBefore(
+                            previousElementSibling, 
+                            moreBtnUl.firstChild
+                        );
+                    }
+                } else {
+                    // save the width of the last element know if the moreButton fits in
+                    lastElementWidth = horizontalUl.lastElementChild.offsetWidth;
+                    moreBtnUl.insertBefore(
+                        horizontalUl.lastElementChild, 
+                        moreBtnUl.firstChild
+                    );
+                }
+                eventsRefresh = true;
+                if(buttonNotAppended === true) appendButton = true;
+            }
         });
 
-        /*
-        ** If there is not enough space to show the last horizontal
-        ** element, append it to the 'more' dropdown.
-        */ 
-        if(totalLiWidth > navWidth) {
-            if(horizontalUl.lastElementChild.id === moreButton.id) {
-                moreBtnUl.appendChild(horizontalUl.lastElementChild.previousElementSibling);
-            } else {
-                moreBtnUl.appendChild(horizontalUl.lastElementChild);
-            }
-            eventsRefresh = true;
-            if(buttonNotAppended === true) appendButton = true;
-        } else {
-            /* 
-            ** Pull out the last element from the 'more' dropdown if there 
-            ** is enough space in the horizontal menu.
-            */
+        /* 
+        ** Pull out the last element from the 'more' dropdown if there 
+        ** is enough space in the horizontal menu.
+        */
+        if(totalLiWidth <= navWidth) {
             if(buttonNotAppended === false) {
                 let pullOut = false;
-                const btnLastElement = moreBtnUl.lastElementChild;
-                const clone = btnLastElement.cloneNode( true );
+                const btnFirstElement = moreBtnUl.firstElementChild;
                 
-                // temporary clone to get the offsetWidth of display:none element
+                // temporarily clone to get the offsetWidth of display:none element
+                const clone = btnFirstElement.cloneNode( true );
+                clone.classList.add('visible-hidden');
                 horizontalUl.appendChild(clone);
 
                 if(moreBtnUl.children.length > 1) {
@@ -114,7 +130,7 @@ const MenuDS = (() => {
                         pullOut = true;
                     }
                 } else if(moreBtnUl.children.length === 1) {
-                    if(clone.offsetWidth + totalLiWidth - moreBtn.offsetWidth < navWidth) {
+                    if(clone.offsetWidth + totalLiWidth - moreButton.offsetWidth < navWidth) {
                         pullOut = true;
                     }
                 }
@@ -123,13 +139,13 @@ const MenuDS = (() => {
 
                 if(pullOut === true) {
                     horizontalUl.insertBefore(
-                        btnLastElement, 
+                        btnFirstElement, 
                         horizontalUl.lastElementChild
                     );
                 }
 
                 if(moreBtnUl.children.length === 0) {
-                    horizontalUl.removeChild(moreBtn);
+                    horizontalUl.removeChild(moreButton);
                 }
             }
         }
@@ -141,10 +157,18 @@ const MenuDS = (() => {
         ** the 'more' dropdown to make space to show the button.
         */
         if(buttonNotAppended === true && appendButton === true) {
-            moreBtnUl.insertBefore(
-                horizontalUl.lastElementChild, 
-                moreBtnUl.firstChild
-            );
+            const clone = moreButton.cloneNode( true );
+            clone.classList.add('visible-hidden');
+            horizontalUl.appendChild(clone);
+            moreButtonWidth = clone.offsetWidth;
+            horizontalUl.removeChild(clone);
+
+            if(lastElementWidth <= moreButtonWidth) {
+                moreBtnUl.insertBefore(
+                    horizontalUl.lastElementChild, 
+                    moreBtnUl.firstChild
+                );
+            }
             horizontalUl.appendChild(moreButton);
         }
 
@@ -152,11 +176,11 @@ const MenuDS = (() => {
     };
 
     const createMoreButton = () => {
-        const moreBtn = document.createElement('li');
-        moreBtn.id = 'more-button-ds';
-        moreBtn.innerHTML = `<a href="#">More</a><ul class="dropdown"></ul>`;
+        const moreButton = document.createElement('li');
+        moreButton.id = 'more-button-ds';
+        moreButton.innerHTML = `<a href="#">+</a><ul class="dropdown"></ul>`;
 
-        return moreBtn;
+        return moreButton;
     };
 
     const init = () => {
