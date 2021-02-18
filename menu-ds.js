@@ -13,12 +13,16 @@ const MenuDS = (() => {
             if(verticalUl.length > 0) {
                 verticalUl[0].classList.add('absolute');
 
-                horizontalLi.addEventListener('mouseenter', e => {
-                    e.preventDefault();
-                    Array.from(verticalUl[0].children).forEach(li => {
-                        li.classList.add('visible');
-                    });
-                });
+                /*horizontalLi.getElementsByTagName('a')[0].removeEventListener(
+                    'click',
+                    handleClick,
+                    false
+                );*/
+
+                horizontalLi.addEventListener(
+                    'mouseenter', 
+                    handleMouseEnter.bind(null, this, verticalUl)
+                );
 
                 /* 
                 ** Add 'click' events to the vertical 'li' elements 
@@ -28,13 +32,14 @@ const MenuDS = (() => {
                     const verticalUlDropdown = verticalLi.getElementsByTagName('ul');
 
                     if(verticalUlDropdown.length > 0) {
+                        verticalUlDropdown[0].classList.remove('absolute');
+                        verticalLi.removeEventListener('mouseenter', handleMouseEnter, false);
+
                         const aElement = verticalLi.getElementsByTagName('a')[0];
-                        aElement.addEventListener('click', e => {
-                            e.preventDefault();
-                            Array.from(verticalUlDropdown[0].children).forEach(li => {
-                                li.classList.toggle('visible');
-                            });
-                        });
+                        aElement.addEventListener(
+                            'click', 
+                            function(e) { handleClick(e, verticalUlDropdown) }
+                        );
                     }
                 });
 
@@ -42,22 +47,39 @@ const MenuDS = (() => {
                 ** Remove 'visible' classes from horizontal and vertical
                 ** dropdown menus when 'mouseleave' the horizontal Li
                 */
-                horizontalLi.addEventListener('mouseleave', e => {
-                    e.preventDefault();
-                    Array.from(verticalUl[0].children).forEach(li => {
-                        li.classList.remove('visible');
-                    });
+                horizontalLi.addEventListener(
+                    'mouseleave', 
+                    handleMouseLeave.bind(null, this, verticalUl)
+                );
+            }
+        });
+    };
 
-                    // Also remove 'visible' from the verticalUlDropdown
-                    Array.from(verticalUl[0].getElementsByTagName('li')).forEach(verticalLi => {
-                        const verticalUlDropdown = verticalLi.getElementsByTagName('ul');
+    const handleMouseEnter = (e, verticalUl) => {
+        Array.from(verticalUl[0].children).forEach(li => {
+            li.classList.add('visible');
+        });
+    };
 
-                        if(verticalUlDropdown.length > 0) {
-                            Array.from(verticalUlDropdown[0].children).forEach(li => {
-                                li.classList.remove('visible');
-                            });
-                        }
-                    });
+    const handleClick = (e, verticalUlDropdown) => {
+        e.preventDefault();
+        Array.from(verticalUlDropdown[0].children).forEach(li => {
+            li.classList.toggle('visible');
+        });
+    };
+
+    const handleMouseLeave = (e, verticalUl) => {
+        Array.from(verticalUl[0].children).forEach(li => {
+            li.classList.remove('visible');
+        });
+
+        // Also remove 'visible' from the verticalUlDropdown
+        Array.from(verticalUl[0].getElementsByTagName('li')).forEach(verticalLi => {
+            const verticalUlDropdown = verticalLi.getElementsByTagName('ul');
+
+            if(verticalUlDropdown.length > 0) {
+                Array.from(verticalUlDropdown[0].children).forEach(li => {
+                    li.classList.remove('visible');
                 });
             }
         });
