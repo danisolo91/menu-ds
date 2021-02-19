@@ -13,15 +13,19 @@ const MenuDS = (() => {
             if(verticalUl.length > 0) {
                 verticalUl[0].classList.add('absolute');
 
-                /*horizontalLi.getElementsByTagName('a')[0].removeEventListener(
+                horizontalLi.getElementsByTagName('a')[0].removeEventListener(
                     'click',
-                    handleClick,
-                    false
-                );*/
+                    handleClick
+                );
 
+                /*
+                ** save verticalUl on horizontalLi's prototype to access it in 
+                ** the handler function.
+                */
+                horizontalLi.verticalUl = verticalUl; 
                 horizontalLi.addEventListener(
                     'mouseenter', 
-                    handleMouseEnter.bind(null, this, verticalUl)
+                    handleMouseEnter
                 );
 
                 /* 
@@ -33,12 +37,14 @@ const MenuDS = (() => {
 
                     if(verticalUlDropdown.length > 0) {
                         verticalUlDropdown[0].classList.remove('absolute');
-                        verticalLi.removeEventListener('mouseenter', handleMouseEnter, false);
+                        verticalLi.removeEventListener('mouseenter', handleMouseEnter);
+                        verticalLi.removeEventListener('mouseleave', handleMouseLeave);
 
                         const aElement = verticalLi.getElementsByTagName('a')[0];
+                        aElement.verticalUlDropdown = verticalUlDropdown;
                         aElement.addEventListener(
                             'click', 
-                            function(e) { handleClick(e, verticalUlDropdown) }
+                            handleClick
                         );
                     }
                 });
@@ -49,26 +55,29 @@ const MenuDS = (() => {
                 */
                 horizontalLi.addEventListener(
                     'mouseleave', 
-                    handleMouseLeave.bind(null, this, verticalUl)
+                    handleMouseLeave
                 );
             }
         });
     };
 
-    const handleMouseEnter = (e, verticalUl) => {
+    const handleMouseEnter = (e) => {
+        const verticalUl = e.currentTarget.verticalUl;
         Array.from(verticalUl[0].children).forEach(li => {
             li.classList.add('visible');
         });
     };
 
-    const handleClick = (e, verticalUlDropdown) => {
+    const handleClick = (e) => {
         e.preventDefault();
+        const verticalUlDropdown = e.currentTarget.verticalUlDropdown;
         Array.from(verticalUlDropdown[0].children).forEach(li => {
             li.classList.toggle('visible');
         });
     };
 
-    const handleMouseLeave = (e, verticalUl) => {
+    const handleMouseLeave = (e) => {
+        const verticalUl = e.currentTarget.verticalUl;
         Array.from(verticalUl[0].children).forEach(li => {
             li.classList.remove('visible');
         });
@@ -164,6 +173,7 @@ const MenuDS = (() => {
                 if(moreBtnUl.children.length === 0) {
                     horizontalUl.removeChild(moreButton);
                 }
+                eventsRefresh = true;
             }
         }
 
