@@ -46,6 +46,10 @@ const MenuDS = (() => {
                             'click', 
                             handleClick
                         );
+                        updateBackgroundColor(
+                            aElement,
+                            verticalUlDropdown[0]
+                        );
                     }
                 });
 
@@ -122,8 +126,7 @@ const MenuDS = (() => {
             if(totalLiWidth >= navWidth) {
                 if(li.id === moreButton.id) {
                     const previousElementSibling = li.previousElementSibling;
-                    if(previousElementSibling != null)
-                    {
+                    if(previousElementSibling != null) {
                         moreBtnUl.insertBefore(
                             previousElementSibling,
                             moreBtnUl.firstChild
@@ -198,7 +201,9 @@ const MenuDS = (() => {
             horizontalUl.appendChild(moreButton);
         }
 
-        if(eventsRefresh === true) refreshEvents();
+        if(eventsRefresh === true) {
+            refreshEvents();
+        }
     };
 
     const createMoreButton = () => {
@@ -209,9 +214,21 @@ const MenuDS = (() => {
         return moreButton;
     };
 
+    const updateBackgroundColor = (a, dropdown) => {
+        const aBg = window.getComputedStyle(a, null).getPropertyValue('background-color');
+        let regex = /\d+/g;
+        let rgbValues = aBg.match(regex);
+        let newRgbArr = rgbValues.map(value => value = +value + 20);
+        let newRgb = 'rgb('+newRgbArr[0]+', '+newRgbArr[1]+', '+newRgbArr[2]+')';
+
+        Array.from(dropdown.getElementsByTagName('a')).forEach(a => {
+            
+            a.style.backgroundColor = newRgb;
+        }); 
+    };
+
     const init = () => {
         refreshResponsive();
-
         /*
         ** Check with 'resize' event if there is enough space
         ** to show horizontal LI elements.
