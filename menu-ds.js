@@ -222,7 +222,6 @@ const MenuDS = (() => {
         let newRgb = 'rgb('+newRgbArr[0]+', '+newRgbArr[1]+', '+newRgbArr[2]+')';
 
         Array.from(dropdown.getElementsByTagName('a')).forEach(a => {
-            
             a.style.backgroundColor = newRgb;
         }); 
     };
